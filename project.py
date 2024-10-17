@@ -5,7 +5,6 @@ from typing import List
 import logging
 from flask import Flask, request, jsonify
 
-# Load environment variables
 load_dotenv()
 
 COINSTATS_API_URL = os.getenv('https://openapiv1.coinstats.app/coins')
@@ -16,7 +15,6 @@ SUPABASE_TABLE = os.getenv('crypto_coins')
 LIMIT = int(os.getenv('LIMIT', 1000))
 # TOTAL_PAGES = int(os.getenv('TOTAL_PAGES', 3))
 
-# Configure logging
 logging.basicConfig(
     filename='coinstats_supabase.log',
     level=logging.INFO,
@@ -26,10 +24,10 @@ logging.basicConfig(
 def fetch_coins(limit: int, api_key: str = None) -> List[dict]:
     headers = {}
     if api_key:
-        headers['Authorization'] = f'Bearer {api_key}'
+        headers['X-API-KEY'] = f'Bearer {api_key}'
 
     params = {
-        'page': 1,  # Fixed to page 1
+        'page': 1,
         'limit': limit
     }
 
