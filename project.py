@@ -1,19 +1,27 @@
 import os
-import requests # type: ignore
-from dotenv import load_dotenv # type: ignore
+import requests
+from dotenv import load_dotenv
 from typing import List
 import logging
 from flask import Flask, request, jsonify
 
 load_dotenv()
 
-COINSTATS_API_URL = os.getenv('https://openapiv1.coinstats.app/coins')
-COINSTATS_API_KEY = os.getenv('NmWGiQvsGyFDobNZZEf2EkOwczlGvQlyIN/Fj5eBQwo=')
-SUPABASE_URL = os.getenv('https://lgntwdaqnwpvzgqfgiyx.supabase.co')
-SUPABASE_SERVICE_ROLE_KEY = os.getenv('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxnbnR3ZGFxbndwdnpncWZnaXl4Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTcyODk0MTkyOSwiZXhwIjoyMDQ0NTE3OTI5fQ.nQLEjmTB776EtakVnmJ3G9o03UUy0SiKA3f8S6TpsBkY')
-SUPABASE_TABLE = os.getenv('crypto_coins')
+COINSTATS_API_URL = os.getenv('COINSTATS_API_URL')
+COINSTATS_API_KEY = os.getenv('COINSTATS_API_KEY')
+SUPABASE_URL = os.getenv('SUPABASE_URL')
+SUPABASE_API_KEY = os.getenv('SUPABASE_API_KEY')
+SUPABASE_SERVICE_ROLE_KEY = os.getenv('SUPABASE_SERVICE_ROLE_KEY')
+SUPABASE_TABLE = os.getenv('SUPABASE_TABLE', 'crypto_coins')
 LIMIT = int(os.getenv('LIMIT', 1000))
 # TOTAL_PAGES = int(os.getenv('TOTAL_PAGES', 3))
+
+print(f"COINSTATS_API_URL: {COINSTATS_API_URL}")
+print(f"SUPABASE_URL: {SUPABASE_URL}")
+print(f"SUPABASE_API_KEY: {SUPABASE_API_KEY}")
+print(f"SUPABASE_SERVICE_ROLE_KEY: {SUPABASE_SERVICE_ROLE_KEY}")
+print(f"SUPABASE_TABLE: {SUPABASE_TABLE}")
+print(f"LIMIT: {LIMIT}")
 
 logging.basicConfig(
     filename='coinstats_supabase.log',
@@ -24,7 +32,7 @@ logging.basicConfig(
 def fetch_coins(limit: int, api_key: str = None) -> List[dict]:
     headers = {}
     if api_key:
-        headers['X-API-KEY'] = f'Bearer {api_key}'
+        headers['X-API-KEY'] = COINSTATS_API_KEY
 
     params = {
         'page': 1,
@@ -44,7 +52,7 @@ def fetch_coins(limit: int, api_key: str = None) -> List[dict]:
 def upsert_batch_to_supabase(coins: List[dict], batch_size: int = 100):
     url = f"{SUPABASE_URL}/rest/v1/{SUPABASE_TABLE}"
     headers = {
-        'apikey': SUPABASE_SERVICE_ROLE_KEY,
+        'apikey': SUPABASE_API_KEY,
         'Authorization': f'Bearer {SUPABASE_SERVICE_ROLE_KEY}',
         'Content-Type': 'application/json',
         'Prefer': 'resolution=merge-duplicates'
